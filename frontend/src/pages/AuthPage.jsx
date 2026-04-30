@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
-// Illustration SVG
+// Illustration SVG - simple abstract shapes
 const AuthIllustration = () => (
   <svg viewBox="0 0 380 300" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', maxWidth: 340 }}>
     <ellipse cx="190" cy="265" rx="155" ry="18" fill="rgba(255,255,255,0.1)" />
@@ -38,7 +37,7 @@ const AuthIllustration = () => (
   </svg>
 );
 
-// Role selector pill button
+// Role selector - only shown on register
 const RoleToggle = ({ selected, onChange }) => (
   <div style={{ display: 'flex', background: '#F3F4F6', borderRadius: 10, padding: 4, gap: 4, marginBottom: 20 }}>
     {[
@@ -53,10 +52,6 @@ const RoleToggle = ({ selected, onChange }) => (
           onClick={() => onChange(value)}
           style={{
             flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 7,
             padding: '9px 0',
             borderRadius: 7,
             border: 'none',
@@ -66,7 +61,7 @@ const RoleToggle = ({ selected, onChange }) => (
             fontWeight: 600,
             transition: 'all 0.18s ease',
             background: isActive ? 'white' : 'transparent',
-            color: isActive ? 'var(--primary)' : '#9CA3AF',
+            color: isActive ? '#4F6DF5' : '#9CA3AF',
             boxShadow: isActive ? '0 1px 6px rgba(0,0,0,0.10)' : 'none',
           }}>
           {label}
@@ -137,23 +132,24 @@ const AuthPage = () => {
         roleName = 'Admin';
       }
 
-      toast.success(isLogin ? `Welcome back, ${roleName}!` : `Account created! You are registered as ${roleName}.`);
+      toast.success(isLogin ? `Welcome back, ${roleName}!` : `Account created! Registered as ${roleName}.`);
       navigate('/dashboard');
     } catch (err) {
       console.log('auth error:', err.response?.data?.message);
-      toast.error(err.response?.data?.message || 'Something went wrong');
+      toast.error(err.response?.data?.message || 'Something went wrong. Check your connection.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Role-specific accent colors
-  const roleColor = selectedRole === 'admin' ? '#4F6DF5' : '#10B981';
+  // button color - always blue on login, role-based on register
+  const btnColor = '#4F6DF5';
   const roleLabel = selectedRole === 'admin' ? 'Admin' : 'Member';
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', background: 'var(--bg-base)' }}>
-      {/* ── Left illustration panel ── */}
+
+      {/* Left illustration panel */}
       <div style={{
         flex: 1,
         background: 'linear-gradient(145deg, #4F6DF5 0%, #3B5BDB 55%, #2541B2 100%)',
@@ -167,7 +163,7 @@ const AuthPage = () => {
         <div style={{ textAlign: 'center', maxWidth: 360 }}>
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 36 }}>
-            <div style={{ width: 44, height: 44, background: 'rgba(255,255,255,0.2)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}>
+            <div style={{ width: 44, height: 44, background: 'rgba(255,255,255,0.2)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <path d="M9 11l3 3L22 4" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -178,40 +174,26 @@ const AuthPage = () => {
 
           <AuthIllustration />
 
-          {/* Show role info only on register */}
-          {!isLogin && (
-            <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 30, padding: '8px 20px' }}>
-                <span style={{ fontWeight: 700, fontSize: 14, color: 'white' }}>
-                  {selectedRole === 'admin' ? 'Registering as Admin' : 'Registering as Member'}
-                </span>
-              </div>
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, maxWidth: 280 }}>
-                {selectedRole === 'admin'
-                  ? 'Full control over projects, tasks, and team management.'
-                  : 'View assigned tasks and update your progress.'}
-              </p>
-            </div>
-          )}
-
-          {/* Show a simple message on login */}
-          {isLogin && (
-            <div style={{ marginTop: 28 }}>
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, maxWidth: 280, margin: '0 auto' }}>
-                Enter your email and password to access your workspace.
-              </p>
-            </div>
-          )}
+          <div style={{ marginTop: 28 }}>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, maxWidth: 280, margin: '0 auto' }}>
+              {isLogin
+                ? 'Enter your credentials to access your workspace.'
+                : selectedRole === 'admin'
+                  ? 'Admin accounts have full control over projects and team members.'
+                  : 'Members can view and update tasks assigned to them.'}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* ── Right form panel ── */}
+      {/* Right form panel */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-        <div className="auth-card fade-in" style={{ maxWidth: 440 }}>
+        <div className="auth-card fade-in" style={{ maxWidth: 440, width: '100%' }}>
+
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 12 }}>
-              <div style={{ width: 34, height: 34, background: roleColor, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.3s' }}>
+              <div style={{ width: 34, height: 34, background: '#4F6DF5', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <path d="M9 11l3 3L22 4" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -223,11 +205,11 @@ const AuthPage = () => {
               {isLogin ? 'Welcome Back!' : 'Create Account'}
             </h2>
             <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>
-              {isLogin ? 'Login to your account' : 'Sign up to get started'}
+              {isLogin ? 'Login to your account' : 'Fill in the details to sign up'}
             </p>
           </div>
 
-          {/* ── Role selector — only show on register ── */}
+          {/* Role selector - only on register */}
           {!isLogin && (
             <div style={{ marginBottom: 4 }}>
               <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
@@ -237,12 +219,14 @@ const AuthPage = () => {
             </div>
           )}
 
-          {/* ── Form ── */}
+          {/* Form */}
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+            {/* Name - only on register */}
             {!isLogin && (
               <div className="form-group">
                 <label className="form-label">Full Name</label>
-                <input className="form-input" type="text" placeholder="Enter your fullname"
+                <input className="form-input" type="text" placeholder="Enter your full name"
                   value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
               </div>
             )}
@@ -254,72 +238,59 @@ const AuthPage = () => {
             </div>
 
             <div className="form-group">
-              <div style={{ marginBottom: 6 }}>
-                <label className="form-label" style={{ marginBottom: 0 }}>Password</label>
-              </div>
+              <label className="form-label">Password</label>
               <div style={{ position: 'relative' }}>
                 <input className="form-input" type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password" style={{ paddingRight: 42 }}
+                  placeholder="Enter your password" style={{ paddingRight: 52 }}
                   value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11, fontWeight: 500 }}>
+                  style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600 }}>
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
               </div>
             </div>
 
+            {/* Confirm password - only on register */}
             {!isLogin && (
               <div className="form-group">
                 <label className="form-label">Confirm Password</label>
-                <div style={{ position: 'relative' }}>
-                  <input className="form-input" type={showPassword ? 'text' : 'password'}
-                    placeholder="Confirm your password" style={{ paddingRight: 42 }}
-                    value={form.confirmPassword} onChange={e => setForm({ ...form, confirmPassword: e.target.value })} required />
-                </div>
+                <input className="form-input" type={showPassword ? 'text' : 'password'}
+                  placeholder="Re-enter your password"
+                  value={form.confirmPassword} onChange={e => setForm({ ...form, confirmPassword: e.target.value })} required />
               </div>
             )}
 
             {/* Submit button */}
             <button type="submit"
               style={{
-                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                padding: '11px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 700, color: 'white',
-                background: roleColor, transition: 'all 0.2s', marginTop: 4,
-                boxShadow: `0 4px 14px ${roleColor}44`,
+                width: '100%',
+                padding: '11px',
+                borderRadius: 8,
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 14,
+                fontWeight: 700,
+                color: 'white',
+                background: btnColor,
+                marginTop: 4,
+                boxShadow: '0 4px 14px rgba(79,109,245,0.35)',
+                opacity: loading ? 0.7 : 1,
               }}
-              disabled={loading}
-              onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
-              {loading
-                ? 'Processing...'
-                : isLogin ? `Login as ${roleLabel}` : `Sign Up as ${roleLabel}`
-              }
+              disabled={loading}>
+              {loading ? 'Please wait...' : isLogin ? 'Login' : `Sign Up as ${roleLabel}`}
             </button>
           </form>
 
-          {/* Switch link */}
+          {/* Switch between login and register */}
           <p style={{ textAlign: 'center', marginTop: 18, fontSize: 13, color: 'var(--text-muted)' }}>
             {isLogin ? "Don't have an account? " : 'Already have an account? '}
             <button onClick={() => handleTabSwitch(!isLogin)}
-              style={{ background: 'none', border: 'none', color: roleColor, fontWeight: 600, cursor: 'pointer', fontSize: 13 }}>
+              style={{ background: 'none', border: 'none', color: '#4F6DF5', fontWeight: 600, cursor: 'pointer', fontSize: 13 }}>
               {isLogin ? 'Sign up' : 'Login'}
             </button>
           </p>
 
-          {/* Info note */}
-          <div style={{ marginTop: 14, padding: '10px 14px', background: selectedRole === 'admin' ? '#EEF1FF' : '#ECFDF5', borderRadius: 8, border: `1px solid ${selectedRole === 'admin' ? '#c7d2fe' : '#A7F3D0'}` }}>
-            <p style={{ fontSize: 12, color: selectedRole === 'admin' ? '#4338CA' : '#059669', lineHeight: 1.5 }}>
-              {selectedRole === 'admin'
-                ? isLogin
-                  ? '⚡ Admin accounts have full access to manage projects, tasks, and team members.'
-                  : '⚡ The first registered user becomes Admin. Subsequent users need an existing Admin to grant them Admin access.'
-                : isLogin
-                  ? '👤 Members can view their assigned tasks and update task statuses.'
-                  : '👤 Members can view and work on tasks assigned to them within projects.'
-              }
-            </p>
-          </div>
         </div>
       </div>
     </div>
