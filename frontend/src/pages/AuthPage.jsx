@@ -42,9 +42,9 @@ const AuthIllustration = () => (
 const RoleToggle = ({ selected, onChange }) => (
   <div style={{ display: 'flex', background: '#F3F4F6', borderRadius: 10, padding: 4, gap: 4, marginBottom: 20 }}>
     {[
-      { value: 'admin', label: 'Admin', icon: Shield },
-      { value: 'member', label: 'Member', icon: User },
-    ].map(({ value, label, icon: Icon }) => {
+      { value: 'admin', label: 'Admin' },
+      { value: 'member', label: 'Member' },
+    ].map(({ value, label }) => {
       const isActive = selected === value;
       return (
         <button
