@@ -156,16 +156,13 @@ const AuthPage = () => {
       {/* ── Left illustration panel ── */}
       <div style={{
         flex: 1,
-        background: selectedRole === 'admin'
-          ? 'linear-gradient(145deg, #4F6DF5 0%, #3B5BDB 55%, #2541B2 100%)'
-          : 'linear-gradient(145deg, #059669 0%, #10B981 55%, #34D399 100%)',
+        background: 'linear-gradient(145deg, #4F6DF5 0%, #3B5BDB 55%, #2541B2 100%)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         padding: '60px 40px',
         color: 'white',
-        transition: 'background 0.4s ease',
       }}>
         <div style={{ textAlign: 'center', maxWidth: 360 }}>
           {/* Logo */}
@@ -181,19 +178,30 @@ const AuthPage = () => {
 
           <AuthIllustration />
 
-          {/* Role badge on illustration panel */}
-          <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 30, padding: '8px 20px' }}>
-              <span style={{ fontWeight: 700, fontSize: 14, color: 'white' }}>
-                {selectedRole === 'admin' ? 'Admin Access' : 'Member Access'}
-              </span>
+          {/* Show role info only on register */}
+          {!isLogin && (
+            <div style={{ marginTop: 28, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 30, padding: '8px 20px' }}>
+                <span style={{ fontWeight: 700, fontSize: 14, color: 'white' }}>
+                  {selectedRole === 'admin' ? 'Registering as Admin' : 'Registering as Member'}
+                </span>
+              </div>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, maxWidth: 280 }}>
+                {selectedRole === 'admin'
+                  ? 'Full control over projects, tasks, and team management.'
+                  : 'View assigned tasks and update your progress.'}
+              </p>
             </div>
-            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, maxWidth: 280 }}>
-              {selectedRole === 'admin'
-                ? 'Full control over projects, tasks, and team management.'
-                : 'View assigned tasks and update your progress.'}
-            </p>
-          </div>
+          )}
+
+          {/* Show a simple message on login */}
+          {isLogin && (
+            <div style={{ marginTop: 28 }}>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, maxWidth: 280, margin: '0 auto' }}>
+                Enter your email and password to access your workspace.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -219,13 +227,15 @@ const AuthPage = () => {
             </p>
           </div>
 
-          {/* ── Role selector ── */}
-          <div style={{ marginBottom: 4 }}>
-            <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
-              {isLogin ? 'Login as' : 'Register as'}
-            </p>
-            <RoleToggle selected={selectedRole} onChange={handleRoleChange} />
-          </div>
+          {/* ── Role selector — only show on register ── */}
+          {!isLogin && (
+            <div style={{ marginBottom: 4 }}>
+              <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
+                Register as
+              </p>
+              <RoleToggle selected={selectedRole} onChange={handleRoleChange} />
+            </div>
+          )}
 
           {/* ── Form ── */}
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
