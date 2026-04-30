@@ -1,8 +1,19 @@
 import axios from 'axios';
 
 // create axios instance with base url
+// in production (Vercel build) use railway URL, in dev use localhost
+const getBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (import.meta.env.MODE === 'production') {
+    return 'https://etharaai-production-7f89.up.railway.app/api';
+  }
+  return 'http://localhost:5000/api';
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: getBaseUrl(),
   headers: { 'Content-Type': 'application/json' },
 });
 
