@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { format, isPast, isToday, isTomorrow } from 'date-fns';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../utils/api';
@@ -37,33 +37,37 @@ const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent
 
 const Dashboard = () => {
   const { user, isAdmin } = useAuth();
+  const location = useLocation();
   const [stats, setStats] = useState({ total: 0, todo: 0, inProgress: 0, completed: 0, overdue: 0 });
   const [projects, setProjects] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchAll = async () => {
+    setLoading(true);
+    try {
+      let [statsRes, projRes, taskRes] = await Promise.all([
+        api.get('/tasks/stats'),
+        api.get('/projects'),
+        api.get('/tasks'),
+      ]);
+
+      console.log('dashboard data loaded');
+
+      setStats(statsRes.data.stats);
+      setProjects(projRes.data.projects);
+      setTasks(taskRes.data.tasks);
+    } catch (err) {
+      console.log('error loading dashboard:', err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // re-fetch every time the user navigates to the dashboard
   useEffect(() => {
-    // fetch all data when page loads
-    const fetchAll = async () => {
-      try {
-        let statsRes = await api.get('/tasks/stats');
-        let projRes = await api.get('/projects');
-        let taskRes = await api.get('/tasks');
-
-        console.log('dashboard data loaded');
-
-        setStats(statsRes.data.stats);
-        setProjects(projRes.data.projects);
-        setTasks(taskRes.data.tasks);
-      } catch (err) {
-        console.log('error loading dashboard:', err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAll();
-  }, []);
+  }, [location.key]);
 
   if (loading) return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
@@ -99,9 +103,18 @@ const Dashboard = () => {
 
   return (
     <div className="slide-in" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-      <div>
-        <h1 className="page-title">Dashboard</h1>
-        <p className="page-subtitle">Welcome back, {user?.name?.split(' ')[0]}! Here's what's happening.</p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div>
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-subtitle">Welcome back, {user?.name?.split(' ')[0]}! Here's what's happening.</p>
+        </div>
+        <button
+          onClick={fetchAll}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: 12.5, color: 'var(--text-secondary)', fontFamily: 'Inter, sans-serif', fontWeight: 500, marginTop: 4 }}
+          title="Refresh dashboard"
+        >
+          ↻ Refresh
+        </button>
       </div>
 
       {/* stat cards */}
